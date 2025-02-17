@@ -1,13 +1,13 @@
 // import * as cdk from 'aws-cdk-lib';
 // import { Template } from 'aws-cdk-lib/assertions';
-// import * as s3deploy from '../lib/s3deploy-stack';
+// import * as MkEndpointHtml from '../lib/mk_endpoint_html-stack';
 
 // example test. To run these tests, uncomment this file along with the
-// example resource in lib/s3deploy-stack.ts
+// example resource in lib/mk_endpoint_html-stack.ts
 test('SQS Queue Created', () => {
 //   const app = new cdk.App();
 //     // WHEN
-//   const stack = new s3deploy.s3deployStack(app, 'MyTestStack');
+//   const stack = new MkEndpointHtml.MkEndpointHtmlStack(app, 'MyTestStack');
 //     // THEN
 //   const template = Template.fromStack(stack);
 

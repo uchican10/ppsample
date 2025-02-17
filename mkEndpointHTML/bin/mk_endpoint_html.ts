@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
-import { RolepolicyStack } from '../lib/rolepolicy-stack';
+import { MkEndpointHtmlStack } from '../lib/mk_endpoint_html-stack';
 
 const app = new cdk.App();
-new RolepolicyStack(app, 'RolepolicyStack', {
+new MkEndpointHtmlStack(app, 'MkEndpointHtmlStack', {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */

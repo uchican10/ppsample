@@ -22,15 +22,16 @@ export class RolepolicyStack extends cdk.Stack {
     const accountId = cdk.Stack.of(this).account;
 
     // create s3 bucket
-    const bucketName = `pinpoint-import-job-bucket-${accountId}`;
+    const bucketName = `pinpoint-importexport-job-bucket-${accountId}`;
 
 
-    const s3bucket = new s3.Bucket(this, 'CreateImportJobBucket', {
+    const s3bucket = new s3.Bucket(this, 'CreateImportExportJobBucket', {
       versioned: true,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       bucketName: `${bucketName}`
     });
 
+    //============================Import Role
 
     const u_pinpointImportRole = new iam.Role(this, 'CreatePinpointImportRole', {
       assumedBy: new iam.ServicePrincipal('pinpoint.amazonaws.com')
@@ -40,19 +41,30 @@ export class RolepolicyStack extends cdk.Stack {
     u_pinpointImportRole
       .addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonS3ReadOnlyAccess'));
 
+    // ============================Export Role
+
     const u_pinpointExportRole = new iam.Role(this, 'CreatePinpointExportRole', {
       assumedBy: new iam.ServicePrincipal('pinpoint.amazonaws.com')
     })
 
-    // add policy to the role
+    // add full paccsess to pinpoint
+    u_pinpointExportRole.addToPolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: ['mobiletargeting:*'],
+      resources: ['*']
+    }));
     // AllowUserToSeeBucketListInTheConsole
-    u_pinpointExportRole.addToPrincipalPolicy(new iam.PolicyStatement({
-      actions: ['s3:ListAllMyBucket', 's3:GetBucketLocation'],
+    u_pinpointExportRole.addToPolicy(new iam.PolicyStatement({
+      
+      effect: iam.Effect.ALLOW,
+      actions: ['s3:ListAllMyBuckets', 's3:GetBucketLocation'],
       resources: ["arn:aws:s3:::*"],
     }));
 
     // AllowRootAndHomeListingOfBucket    
-    u_pinpointExportRole.addToPrincipalPolicy(new iam.PolicyStatement({
+    u_pinpointExportRole.addToPolicy(new iam.PolicyStatement({
+      
+      effect: iam.Effect.ALLOW,
       actions: ['s3:ListBucket'],
       resources: [`arn:aws:s3:::${s3bucket.bucketName}`],
       conditions: {
@@ -63,7 +75,9 @@ export class RolepolicyStack extends cdk.Stack {
     }));
 
     // AllowListingOfUserFolder
-    u_pinpointExportRole.addToPrincipalPolicy(new iam.PolicyStatement({
+    u_pinpointExportRole.addToPolicy(new iam.PolicyStatement({
+      
+      effect: iam.Effect.ALLOW,
       actions: ['s3:ListBucket'],
       resources: [`arn:aws:s3:::${s3bucket.bucketName}`],
       conditions: {
@@ -73,14 +87,7 @@ export class RolepolicyStack extends cdk.Stack {
       }
     }));
 
-    // AllowAllS3ActionsInUserFolder
-    u_pinpointExportRole.addToPrincipalPolicy(new iam.PolicyStatement({
-      actions: ['s3:*'],
-      resources: [`arn:aws:s3:::${s3bucket.bucketName}/Exports/*`]
-    }));
-
-
-    // クロススタック用にS3Bucket名  をエクスポート
+       // クロススタック用にS3Bucket名  をエクスポート
     new cdk.CfnOutput(this, 'S3Bucket', {
       value: s3bucket.bucketName,
       exportName: 'S3Bucket' // クロススタック用にエクスポート
