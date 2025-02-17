@@ -17,9 +17,6 @@ export class MkEndpointHtmlStack extends cdk.Stack {
 
 
     const exportRole = "arn:aws:iam::422364499058:role/RolepolicyStack-CreatePinpointExportRole4D505E98-ojfSNBCAkt4q"
-//RolepolicyStack.S3Bucket = pinpoint-importexport-job-bucket-422364499058
-//RolepolicyStack.pinpointExportRoleArn = arn:aws:iam::422364499058:role/RolepolicyStack-CreatePinpointExportRole4D505E98-ojfSNBCAkt4q
-//RolepolicyStack.pinpointImportRoleArn = arn:aws:iam::422364499058:role/RolepolicyStack-CreatePinpointImportRoleC201ACE0-55VuGf70QKqf
     //------------------------------　./lambda/index.ts を追加する
     // (Function)
     const funcA = new lambda.Function(this, 'MkEndpointHtml', {
@@ -84,3 +81,4 @@ export class MkEndpointHtmlStack extends cdk.Stack {
     )
   }
 }
+

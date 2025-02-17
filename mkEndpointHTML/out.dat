@@ -1,1 +1,1 @@
-{"statusCode":200,"headers":{"Content-Type":"text/html"},"body":"OK"}
+{"statusCode":200,"headers":{"Content-Type":"text/html"},"body":"{\"S3UrlPrefix\":\"s3://pinpoint-importexport-job-bucket-422364499058/Exports/20250217174502/\"}"}

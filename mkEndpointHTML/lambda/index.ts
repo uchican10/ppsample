@@ -17,20 +17,23 @@ interface Endpoint extends EndpointRequired { }
 exports.handler = async (event: APIGatewayEvent,context:Context):Promise<APIGatewayProxyResult> => {
     const applicationId = process.env.PINPOINT_APPLICATION_ID;
     const s3BucketName = process.env.S3_BUCKET_NAME;
-    const s3KeyPrefix = 'Exports/';
+    const s3KeyPrefix = 'Exports';
     const iamRoleArn = process.env.EXPORT_ROLE_ARN;
     const MkEndpointHtmlStacks3Key = `pinpoint-endpoints-${Date.now()}.html`;
 
 
     console.log('DEB DEB ★★ ', `applicationid ${applicationId} s3BucketName ${s3BucketName} `);
+    const now:string = nowStr()
+
 
     //try {
         // Step 1: Create an export job
         // Create export job
+        // createExportJobで作られるgzファイル名は教えてもらえないため、フォルダ名を決めてそこに入れられたものがこれで作られたものと判断してみる
         const createExportJobCommand = new CreateExportJobCommand({
             ApplicationId: applicationId,
             ExportJobRequest: {
-                S3UrlPrefix: `s3://${s3BucketName}/${s3KeyPrefix}`,
+                S3UrlPrefix: `s3://${s3BucketName}/${s3KeyPrefix}/${now}/`,
                 RoleArn: iamRoleArn,
             },
         });
@@ -53,7 +56,6 @@ exports.handler = async (event: APIGatewayEvent,context:Context):Promise<APIGate
             const jobStatus:GetExportJobCommandOutput = await pinpointClient.send(getJobCommand);
 
             if (jobStatus.ExportJobResponse?.JobStatus === "COMPLETED") {
-                console.log('JBSTATUS=',JSON.stringify(jobStatus, null, 2));
                 jobCompleted = true;
             } else if (jobStatus.ExportJobResponse?.JobStatus === "FAILED") {
                 throw new Error("Export job failed");
@@ -66,7 +68,7 @@ exports.handler = async (event: APIGatewayEvent,context:Context):Promise<APIGate
             headers: {
                 'Content-Type': 'text/html',
             },
-            body: 'OK',
+            body: JSON.stringify({S3UrlPrefix: `s3://${s3BucketName}/${s3KeyPrefix}/${now}/`}),
         };
 /*
         // Step 3: Read the exported file from S3
@@ -117,6 +119,14 @@ exports.handler = async (event: APIGatewayEvent,context:Context):Promise<APIGate
         };
     } */
 };
+
+// return yyyymmddHMMSS 
+function nowStr(): string {
+    const currentNow =new Date(Date.now() + ((new Date().getTimezoneOffset() + (9 * 60)) * 60 * 1000));
+    return currentNow.toLocaleString('ja-JP',{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit"}).replace(/[/ :]/g, '')
+    //    return new Date().toLocaleString('ja-JP',{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit"}).replace(/[/ :]/g, '');
+  }
+  
 function generateHtmlTable(records: any[]): string {
     const headers = Object.keys(records[0]);
     const rows = records.map(record => 
